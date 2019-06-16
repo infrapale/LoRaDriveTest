@@ -21,7 +21,7 @@ import os
 io_pin = {'Btn_A':5,'Btn_B':6,'Btn_C':12}
 btn_A = Button(io_pin['Btn_A'])
 btn_B = Button(io_pin['Btn_C'])
-//btn_C = Button(io_pin['Btn_C'])
+# btn_C = Button(io_pin['Btn_C'])
 
 
 # Create the I2C interface.
@@ -57,7 +57,7 @@ def send_msg():
 
 btn_A.when_pressed = send_msg
 btn_B.when_pressed = send_msg
-//btn_C.when_pressed = send_msg
+# btn_C.when_pressed = send_msg
 
     
     

@@ -51,7 +51,7 @@ except:
 
 def send_msg():
     display.fill(0)
-    button_a_data = bytes("Button A!\r\n","utf-8")
+    button_a_data = bytes("Button ABC!\r\n","utf-8")
     rfm9x.send(button_a_data)
     display.text('Sent Button ABC!', 25, 15, 1)
 

@@ -19,24 +19,10 @@ import adafruit_rfm9x
 import os
 
 io_pin = {'Btn_A':5,'Btn_B':6,'Btn_C':12}
-btnA = Button(io_pin['Btn_A'])
-btnB = Button(io_pin['Btn_C'])
-btnC = Button(io_pin['Btn_C'])
+btn_A = Button(io_pin['Btn_A'])
+btn_B = Button(io_pin['Btn_C'])
+btn_C = Button(io_pin['Btn_C'])
 
-# Button A
-btnA = DigitalInOut(board.D5)
-btnA.direction = Direction.INPUT
-btnA.pull = Pull.UP
-
-# Button B
-btnB = DigitalInOut(board.D6)
-btnB.direction = Direction.INPUT
-btnB.pull = Pull.UP
-
-# Button C
-btnC = DigitalInOut(board.D12)
-btnC.direction = Direction.INPUT
-btnC.pull = Pull.UP
 
 # Create the I2C interface.
 i2c = busio.I2C(board.SCL, board.SDA)
@@ -63,6 +49,18 @@ try:
 except:
     ip_addr = 'No IP'
 
+def send_msg():
+    display.fill(0)
+    button_a_data = bytes("Button A!\r\n","utf-8")
+    rfm9x.send(button_a_data)
+    display.text('Sent Button ABC!', 25, 15, 1)
+
+btn_A.when_pressed = send_msg
+btn_B.when_pressed = send_msg
+btn_C.when_pressed = send_msg
+
+    
+    
 while True:
     packet = None
     # draw a box to clear the image
@@ -87,27 +85,7 @@ while True:
             time.sleep(1)
         except:
             pass
-
-    if not btnA.value:
-        # Send Button A
-        display.fill(0)
-        button_a_data = bytes("Button A!\r\n","utf-8")
-        rfm9x.send(button_a_data)
-        display.text('Sent Button A!', 25, 15, 1)
-    elif not btnB.value:
-        # Send Button B
-        display.fill(0)
-        button_b_data = bytes("Button B!\r\n","utf-8")
-        rfm9x.send(button_b_data)
-        display.text('Sent Button B!', 25, 15, 1)
-    elif not btnC.value:
-        # Send Button C
-        display.fill(0)
-        button_c_data = bytes("Button C!\r\n","utf-8")
-        rfm9x.send(button_c_data)
-        display.text('Sent Button C!', 25, 15, 1)
-
-
+   
     display.show()
     time.sleep(0.1)
 

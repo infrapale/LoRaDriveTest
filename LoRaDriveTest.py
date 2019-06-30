@@ -49,15 +49,15 @@ try:
 except:
     ip_addr = 'No IP'
 
-def send_msg():
+def send_msg(msg_txt):
     display.fill(0)
-    button_a_data = bytes("Button ABC!\r\n","utf-8")
+    button_a_data = bytes("Button ") + bytes(msg_txt) + "\r\n","utf-8")
     rfm9x.send(button_a_data)
     display.text('Sent Button ABC!', 25, 15, 1)
 
-btn_A.when_pressed = send_msg
-btn_B.when_pressed = send_msg
-btn_C.when_pressed = send_msg
+btn_A.when_pressed = send_msg('A')
+btn_B.when_pressed = send_msg('B')
+btn_C.when_pressed = send_msg('C')
 
     
     

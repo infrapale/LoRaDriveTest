@@ -53,75 +53,87 @@ except:
 
 def send_msg(msg_txt):
     display.fill(0)
-    button_a_data = bytes("Button ","utf-8") + bytes(msg_txt,"utf-8") + bytes("\r\n","utf-8")
-    rfm9x.send(button_a_data)
-    display.text('Sent Button '+msg_txt, 25, 15, 1)
-
-menu_matrix = [['Start/Stop','Start','Stop' ],
-               ['Shutdown','Now','Nope'],
-               ['Send','Message','-']]
-menu_indx = 0
-menu_entries = 3
+    tx_data = bytes("Button ","utf-8") + bytes(msg_txt,"utf-8") + bytes("\r\n","utf-8")
+    rfm9x.send(tx_data)
+    row_buff[0] = 'Sent: '+msg_txt
 
 
-def send_msg_A():
-    global menu_indx
-    menu_indx = menu_indx +1 
-    if menu_indx >= menu_entries:
-        menu_indx = 0 
-    # send_msg('A')
+# menu_state = 'Initial State'
 
-def send_msg_B():
-    global menu_indx
-    if menu_indx == 0: 
-        print(menu_matrix[menu_indx,1])
-    elif menu_indx == 1:
-        print(menu_matrix[menu_indx,1])
-    elif menu_indx == 2:
-        print(menu_matrix[menu_indx,1])
-    # send_msg('B')
-def send_msg_C():
-    send_msg('C')
+tx_running = False
 
-btn_A.when_pressed = send_msg_A
-btn_B.when_pressed = send_msg_B
-btn_C.when_pressed = send_msg_C
+def send_a():
+    send_msg('A')
+
+def send_b():
+    send_msg('B')
+
+def nop():
+    pass
+def show_ip():
+    row_buff[0] = ip_addr
+    row_buff[1] = ''
+    pass
+
+menu_dict = {
+    'Home':       {'A':['Show IP Address','IP Address',show_ip],
+                   'B':['Send Data','Send',nop],
+                   'C':['Home','Home',nop]},
+    'IP Address': {'A':['','Home',show_ip],
+                   'B':['','Home',nop],
+                   'C':['Home','Home',nop]},
+    'Send':       {'A':['Send msg A','Sending',send_a],
+                   'B':['Send msg B','Sending',send_b],
+                   'C':['Return home','Home',nop]},
+    'Sending':    {'A':['','Home',nop],
+                   'B':['','Home',nop],
+                   'C':['Return home','Home',nop]},
+}
+
+def do_btn_A():
+    global menu_state
+    new_state = menu_dict[menu_state]['A'][1]
+    menu_dict[menu_state]['A'][2]()
+    menu_state = new_state
+
+def do_btn_B():
+    global menu_state
+    new_state = menu_dict[menu_state]['B'][1]
+    menu_dict[menu_state]['B'][2]()
+    menu_state = new_state
+
+def do_btn_C():
+    global menu_state
+    new_state = menu_dict[menu_state]['B'][1]
+    menu_dict[menu_state]['B'][2]()
+    menu_state = new_state
+
+btn_A.when_pressed = do_btn_A
+btn_B.when_pressed = do_btn_B
+btn_C.when_pressed = do_btn_C
 
 time_btw_tx = 10
-
+menu_state = 'Home'
 last_time = timer()
+row_buff = ['','','']
+row_list = [0,12,24]
+btn_list = ['A','B','C']
 while True:
     now_time = timer()
     if ( now_time -last_time ) >  time_btw_tx:
-        last_time =  last_time + time_btw_tx 
+        last_time =  last_time + time_btw_tx
         print(now_time)
 
     packet = None
     # draw a box to clear the image
     display.fill(0)
-    display.text(ip_addr, 35, 0, 1)
+    for i in range(len(row_list)):
+        txt0 = menu_dict[menu_state][btn_list[i]][0]
+        if txt0 == '':
+            txt = row_buff[i]
+        else:
+            txt = btn_list[i] + ': ' + txt0
+        display.text(txt, 0, row_list[i], 1)
 
-    # check for packet rx
-    packet = rfm9x.receive()
-    if packet is None:
-        display.show()
-        display.text('- Waiting for PKT -', 15, 20, 1)
-    else:
-        # Display the packet text and rssi
-        display.fill(0)
-        # print(packet)
-        prev_packet = packet
-        rssi = rfm9x.rssi
-        try:
-            packet_text = str(prev_packet, "utf-8")
-            # print(packet_text)
-            display.text('RX: ', 0, 0, 1)
-            display.text(packet_text, 25, 0, 1)
-            print('rssi=',rssi)
-            time.sleep(1)
-        except:
-            pass
-   
     display.show()
     time.sleep(0.1)
-
